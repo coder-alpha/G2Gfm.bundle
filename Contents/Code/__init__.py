@@ -305,14 +305,17 @@ def EpisodeDetail(title, url):
                     Log.Warn('* EpisodeDetail Warning: %s' %str(e))
                     more = False
 
+        cleaned_video_urls = list()
         for p, u in sorted(video_urls):
             if 'prx.proxy' in u:
                 u = 'https://docs.google.com/file/' + u.split('/file/')[1]
-            oc.add(VideoClipObject(
-                title='%i-%s' %(p, ptitle) if p != 0 else ptitle,
-                thumb=Callback(get_thumb, url=thumb),
-                url=u
-                ))
+            cleaned_video_urls.append((p, u))
+
+        oc.add(VideoClipObject(
+            title=ptitle,
+            thumb=Callback(get_thumb, url=thumb),
+            url="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
+            ))
 
     trailpm = html.xpath('//iframe[@id="trailpm"]/@src')
     if trailpm:
