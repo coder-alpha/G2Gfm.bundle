@@ -311,11 +311,22 @@ def EpisodeDetail(title, url):
                 u = 'https://docs.google.com/file/' + u.split('/file/')[1]
             cleaned_video_urls.append((p, u))
 
-        oc.add(VideoClipObject(
-            title=ptitle,
-            thumb=Callback(get_thumb, url=thumb),
-            url="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
-            ))
+        vurl="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
+        try:
+            mdo = URLService.MetadataObjectForURL(vurl)
+            mdo.thumb=Callback(get_thumb, url=thumb)
+            mdo.title=ptitle
+            oc.add(mdo)
+        except:
+            Log.Exception("Error creating MetadataObjectForURL('{}') >>>".format(vurl))
+            oc.header = "Warning"
+            oc.message = u"Media Offline for '{}'".format(ptitle)
+
+        #oc.add(VideoClipObject(
+            #title=ptitle,
+            #thumb=Callback(get_thumb, url=thumb),
+            #url="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
+            #))
 
     trailpm = html.xpath('//iframe[@id="trailpm"]/@src')
     if trailpm:
