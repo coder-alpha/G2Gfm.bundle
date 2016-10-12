@@ -2,6 +2,7 @@
 
 """G2G Service Code"""
 
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
 RE_STATUS = Regex('"status","ok"')
 RE_DURATION = Regex('"length_seconds","(\d+)"')
 RE_TITLE = Regex("'title': '([^']+)'")
@@ -25,6 +26,7 @@ def MetadataObjectForURL(url):
 def MediaObjectsForURL(url):
 
     d = get_data(url)
+    cookies = get_gd_cookies( GDNormalizeURL( sorted(d['urls'])[0][1] ) )
     return [
         MediaObject(
             video_resolution=res,
@@ -38,10 +40,22 @@ def MediaObjectsForURL(url):
                 PartObject(
                     key=BuildURLs(u).get(res, '720' if res == '1080' else '360'),
                     duration=int(PlayDuration(u)),
+                    http_headers={'User-Agent': USER_AGENT, 'Cookies': cookies},
                     ) for u in [GDNormalizeURL(item[1]) for item in sorted(d['urls'])]
                 ],
             ) for res, bit in [('1080', 3000), ('720', 1500), ('360', 750)]
         ]
+
+####################################################################################################
+def get_gd_cookies(url):
+    cookies = HTTP.CookiesForURL(url)
+    Log(cookies)
+    if not cookies:
+        h = HTTP.Request(url, headers={'User-Agent': USER_AGENT}, cacheTime=300).headers
+        Log(h)
+        cookies = HTTP.CookiesForURL(url)
+        Log(cookies)
+    return cookies
 
 ####################################################################################################
 def BuildURLs(url):
@@ -57,6 +71,7 @@ def BuildURLs(url):
             url_dict['360'] = fmt.split('|')[1]
 
     if url_dict:
+        Log.Debug(url_dict)
         return url_dict
 
     raise Ex.MediaNotAvailable
@@ -73,14 +88,14 @@ def GDNormalizeURL(url):
 
 ####################################################################################################
 def PlayDuration(url):
-    return int(RE_DURATION.search(HTTP.Request(url, cacheTime=300).content).group(1))*1000
+    return int(RE_DURATION.search(HTTP.Request(url, headers={'User-Agent': USER_AGENT}, cacheTime=300).content).group(1))*1000
 
 ####################################################################################################
 def get_page(url, normalize=True):
     if normalize:
         url = GDNormalizeURL(url)
     try:
-        page = HTTP.Request(url, cacheTime=300).content
+        page = HTTP.Request(url, headers={'User-Agent': USER_AGENT}, cacheTime=300).content
     except Ex.HTTPError, e:
         if e.code == 403:
             raise Ex.MediaNotAuthorized
