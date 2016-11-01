@@ -7,6 +7,7 @@ RE_STATUS = Regex('"status","ok"')
 RE_DURATION = Regex('"length_seconds","(\d+)"')
 RE_TITLE = Regex("'title': '([^']+)'")
 RE_FMT_MAP = Regex('"fmt_stream_map","([^"]+)"')
+RE_COOKIE_VALUE = Regex('DRIVE_STREAM=([^;]+);')
 FALLBACK = 'http://i.imgur.com/75YO83o.jpg'
 
 ####################################################################################################
@@ -26,7 +27,7 @@ def MetadataObjectForURL(url):
 def MediaObjectsForURL(url):
 
     d = get_data(url)
-    cookies = get_gd_cookies( GDNormalizeURL( sorted(d['urls'])[0][1] ) )
+    #cookies = get_gd_cookies( GDNormalizeURL( sorted(d['urls'])[0][1] ) )
     return [
         MediaObject(
             video_resolution=res,
@@ -36,11 +37,12 @@ def MediaObjectsForURL(url):
             audio_codec=AudioCodec.AAC,
             audio_channels=2,
             optimized_for_streaming=True,
+            #optimized_for_streaming=False,
             parts=[
                 PartObject(
                     key=BuildURLs(u).get(res, '720' if res == '1080' else '360'),
                     duration=int(PlayDuration(u)),
-                    http_headers={'User-Agent': USER_AGENT, 'Cookies': cookies},
+                    #http_headers={'User-Agent': USER_AGENT, 'Cookies': cookies},
                     ) for u in [GDNormalizeURL(item[1]) for item in sorted(d['urls'])]
                 ],
             ) for res, bit in [('1080', 3000), ('720', 1500), ('360', 750)]
@@ -82,9 +84,7 @@ def get_data(url):
 
 ####################################################################################################
 def GDNormalizeURL(url):
-    url = url.split('/preview')[0]
-    url = url.split('/edit')[0]
-    return url
+    return '%s/view' % (url.split('/preview')[0].split('/edit')[0].split('/view')[0])
 
 ####################################################################################################
 def PlayDuration(url):

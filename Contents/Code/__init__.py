@@ -325,11 +325,19 @@ def EpisodeDetail(title, url):
             oc.message = u"Media Offline for '{}'".format(ptitle)
         """
 
-        oc.add(VideoClipObject(
-            title=ptitle,
-            thumb=Callback(get_thumb, url=thumb),
-            url="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
-            ))
+        if Prefs['local_sc']:
+            oc.add(VideoClipObject(
+                title=ptitle,
+                thumb=Callback(get_thumb, url=thumb),
+                url="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
+                ))
+        else:
+            for p, u in cleaned_video_urls:
+                oc.add(VideoClipObject(
+                    title='%i-%s' %(p, ptitle) if p != 0 else ptitle,
+                    thumb=Callback(get_thumb, url=thumb),
+                    url=u
+                    ))
 
     trailpm = html.xpath('//iframe[@id="trailpm"]/@src')
     if trailpm:
