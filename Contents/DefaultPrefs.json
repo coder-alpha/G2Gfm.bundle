@@ -5,5 +5,11 @@
     "label": "Site URL",
     "values": ["http://cyro.se", "http://cyro.se.prx.proxyunblocker.org", "http://cyro.se.prx.proxywebsite.co.uk"],
     "default": "http://cyro.se"
+  },
+  {
+    "id": "local_sc",
+    "type": "bool",
+    "label": "Use Local Service Code",
+    "default": "False"
   }
 ]

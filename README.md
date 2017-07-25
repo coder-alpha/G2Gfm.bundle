@@ -52,7 +52,7 @@ Known Issues
 ============
 
 - No item summaries.
-- No metadata info on final video page due to Google Video link.
+- ~~No metadata info on final video page due to Google Video link.~~
 - Source website has missing videos for some older content.
 
 

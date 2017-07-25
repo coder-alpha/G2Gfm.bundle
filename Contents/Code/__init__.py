@@ -305,14 +305,39 @@ def EpisodeDetail(title, url):
                     Log.Warn('* EpisodeDetail Warning: %s' %str(e))
                     more = False
 
+        cleaned_video_urls = list()
         for p, u in sorted(video_urls):
             if 'prx.proxy' in u:
                 u = 'https://docs.google.com/file/' + u.split('/file/')[1]
+            cleaned_video_urls.append((p, u))
+
+        # works for checking each part, but slows down the channel, leaving for ref but decided not to use
+        """
+        vurl="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
+        try:
+            mdo = URLService.MetadataObjectForURL(vurl)
+            mdo.thumb=Callback(get_thumb, url=thumb)
+            mdo.title=ptitle
+            oc.add(mdo)
+        except:
+            Log.Exception("Error creating MetadataObjectForURL('{}') >>>".format(vurl))
+            oc.header = "Warning"
+            oc.message = u"Media Offline for '{}'".format(ptitle)
+        """
+
+        if Prefs['local_sc']:
             oc.add(VideoClipObject(
-                title='%i-%s' %(p, ptitle) if p != 0 else ptitle,
+                title=ptitle,
                 thumb=Callback(get_thumb, url=thumb),
-                url=u
+                url="g2g://" + E(JSON.StringFromObject({"title": ptitle, "urls": cleaned_video_urls, "thumb": thumb}))
                 ))
+        else:
+            for p, u in cleaned_video_urls:
+                oc.add(VideoClipObject(
+                    title='%i-%s' %(p, ptitle) if p != 0 else ptitle,
+                    thumb=Callback(get_thumb, url=thumb),
+                    url=u
+                    ))
 
     trailpm = html.xpath('//iframe[@id="trailpm"]/@src')
     if trailpm:
