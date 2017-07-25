@@ -17,6 +17,8 @@ ICON_MOVIES = "icon-movies.png"
 ICON_SERIES = "icon-series.png"
 ICON_QUEUE = "icon-queue.png"
 
+import re, time, cookielib, urllib2
+
 ######################################################################################
 def Start():
     """Set global variables"""
@@ -84,7 +86,7 @@ def ValidatePrefs():
     try:
         HTTP.ClearCookies()
         if 'prx.proxy' in Dict['site_url']:
-            proxy = Dict['site_url'].replace('cyro.se.prx.', '') + '/'
+            proxy = Dict['site_url'].replace('xpau.se.prx.', '') + '/'
             site_url = Dict['site_url'].split('.prx')[0]
             HTTP.Request(proxy, cacheTime=0).load()
             cookies = HTTP.CookiesForURL(proxy)
@@ -338,6 +340,11 @@ def EpisodeDetail(title, url):
                     thumb=Callback(get_thumb, url=thumb),
                     url=u
                     ))
+        if Prefs['direct_file']:
+            for p, u in cleaned_video_urls:
+                durl, resp = getFileLink(u)
+                if resp == True:
+                    oc.add(CreateVideoObject(url=durl, title='%i-%s' % (p, ptitle) if p != 0 else '%s' % ptitle, summary=' ', thumb=Callback(get_thumb, url=thumb)))
 
     trailpm = html.xpath('//iframe[@id="trailpm"]/@src')
     if trailpm:
@@ -463,7 +470,133 @@ def clean_url(href):
         url = Dict['site_url'] + (href if href.startswith('/') else '/' + href)
 
     return url
+    
+######################################################################################
+def getFileLink(id, timeout=5):
 
+    if 'http' in id:
+        url = id
+        idstr = '%s' % (url.split('/preview')[0].split('/edit')[0].split('/view')[0])
+        idstr = idstr.split('/')
+        id = idstr[len(idstr)-1]
+
+    durl = 'https://drive.google.com/uc?export=view&id=%s' % id
+    cookieD = None
+    try: 
+		HTTP.ClearCache()
+		respD = HTTP.Request(durl, timeout=timeout).content
+		if cookieD == None:
+			cookieD = HTTP.CookiesForURL(durl)
+		
+		confirm = re.findall(r'confirm.*?&', respD)[0]
+		durl2 = 'https://drive.google.com/uc?export=download&%sid=%s' % (confirm,id)
+	   
+		time.sleep(2.0)
+		
+		durl4 = GetRedirect(durl2, headers={}, cookie=cookieD, timeout=timeout)
+		durl = durl4.replace('?e=download','?e=file.mp4')
+    except Exception as e:
+        Log.Debug(e)
+        pass
+    
+    res = True
+    if 'drive.google.com' in durl:
+        res = False
+    
+    return durl, res
+    
+####################################################################################################
+@route(PREFIX+'/videoplayback')
+def CreateVideoObject(url, title, summary, thumb, include_container=False, **kwargs):
+
+    if include_container:
+        video = MovieObject(
+            key = Callback(CreateVideoObject, url=url, title=title, summary=summary, thumb=thumb, include_container=True),
+            rating_key = url + title,
+            title = title,
+            summary = summary,
+            thumb = thumb,
+            items = [
+                MediaObject(
+                        container = Container.MP4,     # MP4, MKV, MOV, AVI
+                        video_codec = VideoCodec.H264, # H264
+                        audio_codec = AudioCodec.AAC,  # ACC, MP3
+                        audio_channels = 2,            # 2, 6
+                        parts = [PartObject(key=Callback(PlayVideo,url=url))],
+                        optimized_for_streaming = True
+                )
+            ]
+        )
+    else:
+        video = VideoClipObject(
+            key = Callback(CreateVideoObject, url=url, title=title, summary=summary, thumb=thumb, include_container=True),
+            rating_key = url + title,
+            title = '%s (DF Method)' % title,
+            summary = summary,
+            thumb = thumb,
+            items = [
+                MediaObject(
+                        container = Container.MP4,     # MP4, MKV, MOV, AVI
+                        video_codec = VideoCodec.H264, # H264
+                        audio_codec = AudioCodec.AAC,  # ACC, MP3
+                        audio_channels = 2,            # 2, 6
+                        parts = [PartObject(key=Callback(PlayVideo,url=url))],
+                        optimized_for_streaming = True
+                )
+            ]
+        )
+  
+    if include_container:
+        return ObjectContainer(objects=[video])
+    else:
+        return video
+
+####################################################################################################
+@route(PREFIX+'/PlayVideo.mp4')
+@indirect
+def PlayVideo(url, **kwargs):
+
+    return IndirectResponse(VideoClipObject, key=url)
+    
+####################################################################################################
+
+def GetRedirect(url, headers, cookie, timeout=10, ref=None):
+    class HTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            newreq = urllib2.HTTPRedirectHandler.redirect_request(self,
+                req, fp, code, msg, headers, newurl)
+            if newreq is not None:
+                self.redirections.append(newreq.get_full_url())
+            return newreq
+    
+    redirectHandler = HTTPRedirectHandler()
+    redirectHandler.max_redirections = 10
+    redirectHandler.redirections = []
+
+    opener = urllib2.build_opener(redirectHandler)
+    opener = urllib2.install_opener(opener)
+    
+    cookies = cookielib.LWPCookieJar()
+    handlers = [urllib2.HTTPHandler(), urllib2.HTTPSHandler(), urllib2.HTTPCookieProcessor(cookies)]
+    opener = urllib2.build_opener(*handlers)
+    opener = urllib2.install_opener(opener)
+    
+    if cookie != None:
+        headers['Cookie'] = cookie
+    if ref != None:
+        headers['Referer'] = '%s://%s/' % (urlparse.urlparse(url).scheme, urlparse.urlparse(url).netloc)
+
+    request = urllib2.Request(url, headers=headers)
+
+    try:
+        response = urllib2.urlopen(request, timeout=int(timeout))
+        url = response.geturl()
+        return url
+    except urllib2.HTTPError as response:
+        Log('URL: %s' % url)
+        Log('Error: %s' % response)
+        return url
+    
 ######################################################################################
 @route(PREFIX + '/get_thumb')
 def get_thumb(url, fallback_icon=None, fallback_url=None):

@@ -3,13 +3,19 @@
     "id": "site_url",
     "type": "enum",
     "label": "Site URL",
-    "values": ["http://cyro.se", "http://cyro.se.prx.proxyunblocker.org", "http://cyro.se.prx.proxywebsite.co.uk"],
-    "default": "http://cyro.se"
+    "values": ["http://xpau.se", "http://xpau.se.prx.proxyunblocker.org", "http://xpau.se.prx.proxywebsite.co.uk"],
+    "default": "http://xpau.se"
   },
   {
     "id": "local_sc",
     "type": "bool",
     "label": "Use Local Service Code",
+    "default": "False"
+  },
+  {
+    "id": "direct_file",
+    "type": "bool",
+    "label": "Use Direct File Method",
     "default": "False"
   }
 ]

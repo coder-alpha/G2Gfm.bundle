@@ -3,6 +3,8 @@ About
 
 This is a plugin that creates a new channel in Plex Media Server to view content indexed by the website G2G.fm.
 
+[Plex Support Thread](https://forums.plex.tv/discussion/111730/rel-g2g-fm-watch-latest-release-hd-movies-and-tv-series/p1)
+
 **Note:** The author of this plugin has no affiliation with G2G.fm or the owners of the content that it indexes.
 
 System Requirements
@@ -37,7 +39,7 @@ System Requirements
 How To Install
 ==============
 
-- [Download](https://github.com/TehCrucible/G2Gfm.bundle/archive/master.zip) the latest version of the plugin.
+- Download the latest version of the plugin.
 
 - Unzip and rename folder to "G2Gfm.bundle"
 
@@ -59,7 +61,13 @@ Known Issues
 Changelog
 =========
 
-**0.11** - 09/18/16 - Updated mirror URL from g2gfm.eu to proxyunblocker.org and proxywebsite.co.uk.
+**0.11** - 07/25/2017 - CA's fork - [Local URL Service using Direct file method](https://github.com/coder-alpha/G2Gfm.bundle)
+
+**0.11** - 07/24/2017 - CA's fork - Updated URLs and code for proxy
+
+**0.11** - 11/01/2016 - Twoure's fork [Local URL Service](https://github.com/Twoure/G2Gfm.bundle/tree/dev)
+
+**0.11** - 09/18/16 - Updated mirror URL from g2gfm.eu to proxyunblocker.org and proxywebsite.co.uk. (https://github.com/TehCrucible/G2Gfm.bundle/archive/master.zip)
 
 **0.10** - 07/22/16 - Updated URL to cyro.se. Added back Search function.
 
@@ -80,8 +88,3 @@ Changelog
 **0.02** - 11/06/14 - Added trailers, search and bookmarks. Removed URL service.
 
 **0.01** - 09/06/14 - Initial release.
-
-Donate
-======
-
-Like my work?  [Buy me a coffee.](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JUV2JAVFXY86Q)  =)
