@@ -16,6 +16,6 @@
     "id": "direct_file",
     "type": "bool",
     "label": "Use Direct File Method",
-    "default": "False"
+    "default": "True"
   }
 ]
