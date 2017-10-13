@@ -61,6 +61,8 @@ Known Issues
 Changelog
 =========
 
+**0.11** - 10/13/2017 (2000 GMT) - CA's fork - Fixed proxy support
+
 **0.11** - 10/12/2017 - CA's fork - Site changes / added client.py for HTTP/parsing operations
 
 **0.11** - 07/25/2017 - CA's fork - [Local URL Service using Direct file method](https://github.com/coder-alpha/G2Gfm.bundle)

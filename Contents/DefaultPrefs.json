@@ -3,7 +3,7 @@
     "id": "site_url",
     "type": "enum",
     "label": "Site URL",
-    "values": ["http://xpau.se", "http://xpau.se.prx.proxyunblocker.org", "http://xpau.se.prx.proxywebsite.co.uk"],
+    "values": ["http://xpau.se", "http://xpau.se.prx.proxyunblocker.org"],
     "default": "http://xpau.se"
   },
   {

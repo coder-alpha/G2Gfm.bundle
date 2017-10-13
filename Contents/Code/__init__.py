@@ -561,17 +561,19 @@ def getFileLink(id, timeout=5):
 	
 ####################################################################################################
 def returnFinalLink(url):
-	site = 'http://xpau.se'
-	headers = {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*//**;q=0.8',
-				'Accept-Language':'en-US,en;q=0.8',
-				'Cache-Control':'max-age=0',
-				'Connection':'keep-alive'}
-	headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
+	#site = 'http://xpau.se'
+	headers = HTTP.Headers
+	headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*//**;q=0.8'
+	headers['Accept-Language'] = 'en-US,en;q=0.8'
+	headers['Cache-Control'] = 'max-age=0'
+	headers['Connection'] = 'keep-alive'
+	#headers = {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*//**;q=0.8', 'Accept-Language':'en-US,en;q=0.8', 'Cache-Control':'max-age=0', 'Connection':'keep-alive'}
+	#headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
 
 	for x in range(0,15):
 
 		if 'wait' in url:
-			url = client.request(url, output='geturl')
+			url = client.request(url, output='geturl', headers=headers)
 			
 		resp = client.request(url, headers=headers)
 		#Log(url)
@@ -591,7 +593,8 @@ def returnFinalLink(url):
 			return r
 		
 		if 'http' not in r:
-			url = site + r
+			#url = site + r
+			url = clean_url(r)
 		else:
 			url = r
 				
