@@ -570,15 +570,17 @@ def returnFinalLink(url):
 
 	for x in range(0,15):
 
-		if 'please' in url:
+		if 'wait' in url:
 			url = client.request(url, output='geturl')
 			
 		resp = client.request(url, headers=headers)
+		#Log(url)
+		#Log(resp)
 		
 		if x == 0:
 			r = client.parseDOM(resp, 'a', ret='href', attrs = {'id': 'playthevid'})[0]
-		elif 'adfoc' in url:
-			r = client.parseDOM(resp, 'a', ret='href', attrs = {'class': 'skip'})[0]
+		elif 'adfoc' in url or 'wait' in url:
+			r = client.parseDOM(resp, 'a', ret='href', attrs = {'id': 'skipper'})[0]
 		else:
 			try:
 				r = client.parseDOM(resp, 'iframe', ret='src')[0]
