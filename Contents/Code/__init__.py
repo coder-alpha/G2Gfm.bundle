@@ -426,7 +426,7 @@ def GenreMenu(title):
 
 	oc = ObjectContainer(title1=title)
 
-	html = html_from_url(clean_url('/movies/genre.php?showC=27'))
+	html = html_from_url(clean_url('/genre.php?showC=27'))
 	for m in media_list(html, '/movies', genre=True):
 		oc.add(DirectoryObject(
 			key=Callback(ShowCategory, title=m['title'], category='/movies', href=m['url']),
@@ -481,7 +481,7 @@ def media_list(html, category, genre=False):
 		if category == '/latest' or category == '/search':
 			url = clean_url("/view.php?id=%i" %eid)
 		else:
-			url = clean_url("%s/view.php?id=%i" %(category, eid))
+			url = clean_url("/view.php?id=%i" %(eid))
 
 		thumb = each.xpath("./div/a/img/@src")[0]
 		thumb = thumb if thumb.startswith('http') else clean_url(thumb)
