@@ -3,8 +3,8 @@
     "id": "site_url",
     "type": "enum",
     "label": "Site URL",
-    "values": ["http://xpau.se", "http://xpau.se.prx.proxyunblocker.org"],
-    "default": "http://xpau.se"
+    "values": ["http://xpau.se", "http://xpau.se.prx.proxyunblocker.org", "http://cyro.se", "http://cyro.se.prx.proxyunblocker.org", ],
+    "default": "http://cyro.se"
   },
   {
     "id": "local_sc",
