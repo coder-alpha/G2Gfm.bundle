@@ -562,60 +562,73 @@ def getFileLink(id, timeout=5):
 	
 ####################################################################################################
 def returnFinalLink(url):
-	#site = 'http://xpau.se'
-	headers = {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*//**;q=0.8', 'Accept-Language':'en-US,en;q=0.8', 'Cache-Control':'max-age=0', 'Connection':'keep-alive'}
+	#url = 'http://xpau.se/watch/war-for-the-planet-of-the-apes'
+	#site = self.base_link
+	headers = {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*//**;q=0.8',
+				'Accept-Language':'en-US,en;q=0.8',
+				'Cache-Control':'max-age=0',
+				'Connection':'keep-alive'}
 	headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
 	headers['Cookie'] = ''
 	headers['Referer'] = url
-	for h in HTTP.Headers.keys():
-		headers[h] = HTTP.Headers[h]
 	
 	for x in range(0,15):
+		
 		if 'wait' in url:
-			url = client.request(url, output='geturl', headers=headers)
 			cookie = client.request(url, output='cookie', headers=headers)
 			if cookie != None and len(cookie) > 0:
-				if len(headers['Cookie']) == 0:
-					headers['Cookie'] = headers['Cookie'] + cookie
-				else:
-					headers['Cookie'] = headers['Cookie'] + '; ' + cookie
-	
+				headers['Cookie'] = headers['Cookie'] + cookie
+			#url = client.request(url, output='geturl', headers=headers)
+			#print 'wait-url', url
+			
 		resp = client.request(url, headers=headers)
 		headers['Referer'] = url
+		#print resp
 		if 'playthevid' in resp:
+			#print '---> playthevid'
 			r = client.parseDOM(resp, 'a', ret='href', attrs = {'id': 'playthevid'})[0]
 			cookie = client.request(url, output='cookie', headers=headers)
+			#print cookie
 			if cookie != None and len(cookie) > 0:
 				if len(headers['Cookie']) == 0:
 					headers['Cookie'] = headers['Cookie'] + cookie
 				else:
-					headers['Cookie'] = headers['Cookie'] + '; ' + cookie
+					headers['Cookie'] = headers['Cookie'] + cookie
 		elif 'skipper' in resp:
+			#print '---> skipper'
 			try:
 				r = client.parseDOM(resp, 'a', ret='href', attrs = {'id': 'skipper'})[0]
-				parts = re.findall(r'var.*\"(.*I.*l.*)\".*;', resp)
-				r = '/watch/' + parts[1] + parts[0] + parts[2]
+				try:
+					parts = re.findall(r'var.*\"(.*I.*l.*)\".*;', resp)
+					r = '/watch/' + parts[1] + parts[0] + parts[2]
+				except:
+					Log('Parts decoding failed in skipper')
 			except:
 				pass
 			if 'http' not in r:
 				r = clean_url(r)
 			cookie = client.request(r, output='cookie', headers=headers)
+			#print cookie
 			if cookie != None and len(cookie) > 0:
 				if len(headers['Cookie']) == 0:
 					headers['Cookie'] = headers['Cookie'] + cookie
 				else:
-					headers['Cookie'] = headers['Cookie'] + '; '+ cookie
+					headers['Cookie'] = headers['Cookie'] + cookie
 		else:
+			#print '---> iframe'
+			#print resp
 			try:
 				r = client.parseDOM(resp, 'iframe', ret='src')[0]
 			except:
+				Log('Could not find final url in iframe')
 				return None
 
 		if 'google' in r:
 			return r
 		
 		if 'http' not in r:
-			url = clean_url(r)
+			r = clean_url(r)
+			url = r
 		else:
 			url = r
 
